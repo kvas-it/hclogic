@@ -13,30 +13,16 @@ printKB kb = forM_ (Map.toList kb) printOne
   where
     printOne (a, b) = putStrLn $ "  " ++ show a ++ " with proof: " ++ show b
 
-printProof kb f = do
-    putStrLn ("proving " ++ show f)
-    unless (Map.null kb) $ do
-        putStrLn ("assuming:")
-        printKB kb
-    printPr $ prove kb f
+printProof f = do
     putStrLn ""
+    putStrLn ("proving " ++ show f)
+    printPr $ prove emptyKB f
   where
     printPr Nothing = putStrLn "failed"
     printPr (Just p) = putStrLn $ ">>> " ++ show p
 
-printProofE f = printProof emptyKB f
-
-pr = Conj (Atom "A") (Atom "B")
-cc = Impl (Atom "A") (Atom "B")
-f1 = Impl (PrnF pr) cc
-p1 = Lmbd "x" (Just pr) $ Lmbd "y" (Just (Atom "A")) $ Appl (Var "snd") (Var "x")
-kb1 = Map.fromList [(f1, p1)]
-
-f2 = Impl (Atom "A") (Atom "A")
-
 main = do
-    printProof kb1 f1
-    printProofE f2
-    printProofE $ Impl (Atom "A") (Disj (Atom "A") (Atom "B"))
-    printProofE $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
-    printProofE $ Impl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
+    printProof $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
+    printProof $ Impl (Atom "A") (Disj (Atom "A") (Atom "B"))
+    printProof $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
+    printProof $ Impl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
