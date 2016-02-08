@@ -36,12 +36,11 @@ assume :: KnowledgeBase -> Formula -> Proof -> KnowledgeBase
 assume kb f p =
     if Map.member f kb then kb
     else
-        deriveAssumptions 0 $ Map.insert f p kb
+        deriveAssumptions $ Map.insert f p kb
 
-deriveAssumptions n kb
-    | n == 2          = kb
+deriveAssumptions kb
     | updatedKB == kb = kb
-    | otherwise       = deriveAssumptions (n+1) updatedKB
+    | otherwise       = deriveAssumptions updatedKB
   where
     fps = Map.toList kb
     derived1 = [fp | fp1 <- fps,
@@ -62,8 +61,8 @@ derive1 _ _ = []
 derive2 kb (a `Impl` b, p) (c, q)
     | a == c    = [(b, Appl p q)]
     | otherwise = []
-derive2 kb (a, p) (b, q) = [(a `Conj` b, Pair p q)]
--- derive2 _ _ _ = []
+-- derive2 kb (a, p) (b, q) = [(a `Conj` b, Pair p q)]
+derive2 _ _ _ = []
 
 derive3 kb (a `Disj` b, p) (c `Impl` d, q) (e `Impl` f, r)
     | a == c && b == e && d == f = [(f, appl3 "cases" p q r)]
