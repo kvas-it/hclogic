@@ -23,9 +23,15 @@ printProof f = do
 
 proveImpl a b = printProof $ Impl a b
 
+_A = Atom "A"
+_B = Atom "B"
+_C = Atom "C"
+
 main = do
-    proveImpl (Atom "A") (Disj (Atom "A") (Atom "B"))
-    proveImpl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
-    proveImpl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
-    proveImpl (Conj (Impl (Atom "A") (Atom "B")) (Impl (Atom "B") (Atom "C")))
-              (Impl (Atom "A") (Atom "C"))
+    proveImpl _A (_A `Disj` _B)
+    proveImpl _A (_B `Impl` (_A `Conj` _B))
+    proveImpl (_A `Conj` _B) (_A `Disj` _B)
+    proveImpl ((_A `Impl` _B) `Conj` (_B `Impl` _C)) (_A `Impl` _C)
+    proveImpl (_A `Conj` (_B `Conj` _C)) _C
+    proveImpl ((_A `Disj` _B) `Conj` ((_A `Impl` _C) `Conj` (_B `Impl` _C))) _C
+    proveImpl ((_A `Impl` _C) `Conj` (_B `Impl` _C)) ((_A `Disj` _B) `Impl` _C)
