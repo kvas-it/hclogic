@@ -2,7 +2,7 @@
 -- Formula type and utilities.
 --
 
-module Formula (Formula (Atom, Conj, Disj, Impl), parenF) where
+module Formula (Formula (Atom, Conj, Disj, Impl, PrnF), parenF) where
 
 data Formula =
     Atom String |

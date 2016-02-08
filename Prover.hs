@@ -57,6 +57,7 @@ deriveAssumptions kb =
     updatedKB = Map.union kb $ Map.fromList derivedFPs
 
 derive1 kb (a `Conj` b, p) = [(a, appl "fst" p), (b, appl "snd" p)]
+derive1 kb (PrnF a, p) = [(a, p)]
 derive1 _ _ = []
 
 derive2 kb (a `Impl` b, p) (c, q)
@@ -96,5 +97,7 @@ prove' kb (Conj a b) = do
     pa' <- prove kb a
     pb' <- prove kb b
     return $ Pair pa' pb'
+
+prove' kb (PrnF a) = prove' kb a
 
 prove' _ _ = Nothing
