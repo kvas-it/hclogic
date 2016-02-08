@@ -36,4 +36,5 @@ main = do
     proveImpl ((_A `Disj` _B) `Conj` ((_A `Impl` _C) `Conj` (_B `Impl` _C))) _C
     proveImpl ((_A `Impl` _C) `Conj` (_B `Impl` _C)) ((_A `Disj` _B) `Impl` _C)
     proveImpl (_A `Impl` (_B `Impl` _C)) ((_A `Conj` _B) `Impl` _C)
+    proveImpl (_A `Conj` (_B `Disj` _C)) ((_A `Conj` _B) `Disj` (_A `Conj` _C))
     proveImpl (((_A `Conj` _B) `Impl` _C) `Conj` _A) (_B `Impl` _C)

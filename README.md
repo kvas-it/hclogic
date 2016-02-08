@@ -2,8 +2,8 @@
 
 I tried to program a prover that would be able to do exercises from the book "Type Theory & Functional Programming" by Simon Thompson. So far it can prove some simple formulas:
 
-    $ runhaskell Main.hs
-
+	$ runhaskell Main.hs
+	
 	proving A => A v B
 	>>> (\a : A). inl a
 	
@@ -25,12 +25,18 @@ I tried to program a prover that would be able to do exercises from the book "Ty
 	proving (A => C) ^ (B => C) => A v B => C
 	>>> (\a : (A => C) ^ (B => C)). (\b : A v B). cases b (fst a) (snd a)
 	
+	proving (A => B => C) => A ^ B => C
+	>>> (\a : A => B => C). (\b : A ^ B). a (fst b) (snd b)
+	
+	proving A ^ (B v C) => A ^ B v A ^ C
+	failed
+	
 	proving (A ^ B => C) ^ A => B => C
 	failed
 
-The code is a bit messy and incomplete (for example can't prove the last formula and doesn't know how to deal with negation) but it's been fun.
+The code is a bit messy and incomplete (for example can't prove the last two formulas and doesn't know how to deal with negation) but it's been fun. The problem at the moment seems to be that we can't just assume conjunctions of all possible pairs of facts that we know (they list is infinite and it grows fast even when the depth of the search is limited) and I haven't figured out how to decide smartly which ones we want.
 
-Note: the notation (inl, inr, etc.) has been taken from the book:
+The notation (inl, inr, etc.) has been taken from the book:
 
 * `inl` produces a proof of `A v B` from a proof of `A`.
 * `inr` produces a proof of `A v B` from a proof of `B`.
