@@ -1,0 +1,27 @@
+--
+-- Proof type and utilities.
+--
+
+module Proof where
+
+import Formula
+
+data Proof =
+    Var String |
+    Appl Proof Proof |
+    Lmbd String (Maybe Formula) Proof |
+    PrnP Proof
+  deriving (Eq, Ord)
+
+instance Show Proof where
+    show (Var a) = a
+    show (Appl a b) = show a ++ " " ++ show b
+    show (Lmbd x (Just f) p) = "(\\" ++ x ++ " : " ++ show f ++ "). " ++ show p
+    show (Lmbd x Nothing p) = "\\" ++ x ++ ". " ++ show p
+    show (PrnP p) = "(" ++ show p ++ ")"
+
+varsOf :: Proof -> [String]
+varsOf (Var a) = [a]
+varsOf (Appl a b) = varsOf a ++ varsOf b
+varsOf (Lmbd a _ b) = [a] ++ varsOf b
+varsOf (PrnP a) = varsOf a
