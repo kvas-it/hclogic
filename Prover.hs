@@ -31,6 +31,18 @@ newVar kb = Maybe.fromMaybe "_" $ List.find notUsed varNames
         if number == 0 then [letter] else [letter] ++ show number
     varPairs = [(l, n) | n <- [0..], l <- ['a'..'z']]
 
+-- Add formula to knowledge base together with its proof.
+assume :: KnowledgeBase -> Formula -> Proof -> KnowledgeBase
+assume kb f p =
+    if Map.member f kb then kb
+    else
+        assumeDerived (Map.insert f p kb) f p
+
+-- Add derived formulas to knowledge base.
+assumeDerived kb (Conj a b) p =
+    assume (assume kb a $ appl "fst" p) b $ appl "snd" p
+assumeDerived kb _ _ = kb
+
 prove :: KnowledgeBase -> Formula -> Maybe Proof
 prove kb f
     | Map.member f kb  = Just $ kb Map.! f
@@ -39,20 +51,20 @@ prove kb f
 prove' :: KnowledgeBase -> Formula -> Maybe Proof
 prove' kb (Impl a b) = do
     pb <- prove kb' b
-    return $ Lmbd var (Just a) pb
+    return $ Lmbd varName (Just a) pb
   where
-    var = newVar kb
-    kb' = if Map.member a kb then kb else Map.insert a (Var var) kb
+    varName = newVar kb
+    kb' = assume kb a (Var varName)
 
 prove' kb (Disj a b) =
     orElse pa pb
   where
     pa = do
         pa' <- prove kb a
-        return $ Appl (Var "inl") pa'
+        return $ appl "inl" pa'
     pb = do
         pb' <- prove kb b
-        return $ Appl (Var "inr") pb'
+        return $ appl "inr" pb'
 
 prove' kb (Conj a b) = do
     pa' <- prove kb a

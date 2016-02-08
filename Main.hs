@@ -39,3 +39,4 @@ main = do
     printProofE f2
     printProofE $ Impl (Atom "A") (Disj (Atom "A") (Atom "B"))
     printProofE $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
+    printProofE $ Impl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
