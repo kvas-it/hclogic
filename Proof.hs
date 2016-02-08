@@ -30,3 +30,12 @@ varsOf (Var a) = [a]
 varsOf (Appl a b) = varsOf a ++ varsOf b
 varsOf (Lmbd a _ b) = [a] ++ varsOf b
 varsOf (PrnP a) = varsOf a
+
+-- Parenthesize the proof to make it unambiguous.
+parenP :: Proof -> Proof
+parenP (Appl a b@(Appl _ _)) = Appl (parenP a) $ PrnP (parenP b)
+parenP (Appl a b) = Appl (parenP a) (parenP b)
+parenP (Lmbd x Nothing p) = Lmbd x Nothing (parenP p)
+parenP (Lmbd x (Just f) p) = Lmbd x (Just $ parenF f) (parenP p)
+parenP (Pair a b) = Pair (parenP a) (parenP b)
+parenP p = p
