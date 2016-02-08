@@ -22,8 +22,10 @@ instance Show Proof where
     show (Pair a b) = "(" ++ show a ++ ", " ++ show b ++ ")"
     show (PrnP p) = "(" ++ show p ++ ")"
 
--- Shortcut for a builtin function application.
+-- Shortcuts for builtin function application.
 appl funcName p = Appl (Var funcName) p
+appl2 funcName p q = Appl (appl funcName p) q
+appl3 funcName p q r = Appl (appl2 funcName p q) r 
 
 varsOf :: Proof -> [String]
 varsOf (Var a) = [a]

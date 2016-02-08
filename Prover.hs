@@ -44,22 +44,30 @@ deriveAssumptions kb =
         else
             deriveAssumptions $ updatedKB
   where
-    derived1 = [fp | fp1 <- Map.toList kb,
+    fps = Map.toList kb
+    derived1 = [fp | fp1 <- fps,
                      fp <- derive1 kb fp1]
-    derived2 = [fp | fp1 <- Map.toList kb,
-                     fp2 <- Map.toList kb,
-                     fp1 /= fp2,
+    derived2 = [fp | fp1 <- fps, fp2 <- fps, fp1 /= fp2,
                      fp <- derive2 kb fp1 fp2 ]
-    derivedFPs = derived1 ++ derived2
+    derived3 = [fp | fp1 <- fps, fp2 <- fps, fp3 <- fps,
+                     fp1 /= fp2, fp1 /= fp3, fp2 /= fp3,
+                     fp <- derive3 kb fp1 fp2 fp3 ]
+
+    derivedFPs = derived1 ++ derived2 ++ derived3
     updatedKB = Map.union kb $ Map.fromList derivedFPs
 
-derive1 kb ((Conj a b), p) = [(a, appl "fst" p), (b, appl "snd" p)]
+derive1 kb (a `Conj` b, p) = [(a, appl "fst" p), (b, appl "snd" p)]
 derive1 _ _ = []
 
-derive2 kb ((Impl a b), p) (c, r)
-    | a == c    = [(b, Appl p r)]
+derive2 kb (a `Impl` b, p) (c, q)
+    | a == c    = [(b, Appl p q)]
     | otherwise = []
 derive2 _ _ _ = []
+
+derive3 kb (a `Disj` b, p) (c `Impl` d, q) (e `Impl` f, r)
+    | a == c && b == e && d == f = [(f, appl3 "cases" p q r)]
+    | otherwise                  = []
+derive3 _ _ _ _ = []
 
 prove :: KnowledgeBase -> Formula -> Maybe Proof
 prove kb f
