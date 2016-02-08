@@ -2,7 +2,7 @@
 -- Generate constructive proofs for formulas.
 --
 
-module Prover (emptyKB, prove) where
+module Prover (prove) where
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -61,7 +61,6 @@ derive1 _ _ = []
 derive2 kb (a `Impl` b, p) (c, q)
     | a == c    = [(b, Appl p q)]
     | otherwise = []
--- derive2 kb (a, p) (b, q) = [(a `Conj` b, Pair p q)]
 derive2 _ _ _ = []
 
 derive3 kb (a `Disj` b, p) (c `Impl` d, q) (e `Impl` f, r)
@@ -69,31 +68,32 @@ derive3 kb (a `Disj` b, p) (c `Impl` d, q) (e `Impl` f, r)
     | otherwise                  = []
 derive3 _ _ _ _ = []
 
-prove :: KnowledgeBase -> Formula -> Maybe Proof
-prove kb f
-    | Map.member f kb  = Just $ kb Map.! f
-    | otherwise        = prove' kb f
+prove :: Formula -> Maybe Proof
+prove f = prove' emptyKB f
 
-prove' :: KnowledgeBase -> Formula -> Maybe Proof
-prove' kb (Impl a b) = do
-    pb <- prove kb' b
+prove' kb f
+    | Map.member f kb  = Just $ kb Map.! f
+    | otherwise        = prove'' kb f
+
+prove'' kb (Impl a b) = do
+    pb <- prove' kb' b
     return $ Lmbd varName (Just a) pb
   where
     varName = newVar kb
     kb' = assume kb a (Var varName)
 
-prove' kb (Disj a b) =
+prove'' kb (Disj a b) =
     orElse (proveOne a "inl") (proveOne b "inr")
   where
     proveOne a side = do
-        pa <- prove kb a
+        pa <- prove' kb a
         return $ appl side pa
 
-prove' kb (Conj a b) = do
-    pa' <- prove kb a
-    pb' <- prove kb b
+prove'' kb (Conj a b) = do
+    pa' <- prove' kb a
+    pb' <- prove' kb b
     return $ Pair pa' pb'
 
-prove' kb (PrnF a) = prove' kb a
+prove'' kb (PrnF a) = prove'' kb a
 
-prove' _ _ = Nothing
+prove'' _ _ = Nothing

@@ -16,7 +16,7 @@ printKB kb = forM_ (Map.toList kb) printOne
 printProof f = do
     putStrLn ""
     putStrLn ("proving " ++ show (parenF f))
-    printPr $ prove emptyKB f
+    printPr $ prove f
   where
     printPr Nothing = putStrLn "failed"
     printPr (Just p) = putStrLn $ ">>> " ++ show (parenP p)
