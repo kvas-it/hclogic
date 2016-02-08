@@ -84,14 +84,11 @@ prove' kb (Impl a b) = do
     kb' = assume kb a (Var varName)
 
 prove' kb (Disj a b) =
-    orElse pa pb
+    orElse (proveOne a "inl") (proveOne b "inr")
   where
-    pa = do
-        pa' <- prove kb a
-        return $ appl "inl" pa'
-    pb = do
-        pb' <- prove kb b
-        return $ appl "inr" pb'
+    proveOne a side = do
+        pa <- prove kb a
+        return $ appl side pa
 
 prove' kb (Conj a b) = do
     pa' <- prove kb a
