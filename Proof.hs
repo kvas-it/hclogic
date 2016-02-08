@@ -2,7 +2,12 @@
 -- Proof type and utilities.
 --
 
-module Proof where
+module Proof (
+    Proof (Var, Appl, Lmbd, Pair, PrnP),
+    appl, appl2, appl3,
+    varsOf,
+    parenP)
+where
 
 import Formula
 
