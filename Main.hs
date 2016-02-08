@@ -15,14 +15,17 @@ printKB kb = forM_ (Map.toList kb) printOne
 
 printProof f = do
     putStrLn ""
-    putStrLn ("proving " ++ show f)
+    putStrLn ("proving " ++ show (parenF f))
     printPr $ prove emptyKB f
   where
     printPr Nothing = putStrLn "failed"
-    printPr (Just p) = putStrLn $ ">>> " ++ show p
+    printPr (Just p) = putStrLn $ ">>> " ++ show (parenP p)
+
+proveImpl a b = printProof $ Impl a b
 
 main = do
-    printProof $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
-    printProof $ Impl (Atom "A") (Disj (Atom "A") (Atom "B"))
-    printProof $ Impl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
-    printProof $ Impl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
+    proveImpl (Atom "A") (Disj (Atom "A") (Atom "B"))
+    proveImpl (Atom "A") (Impl (Atom "B") (Conj (Atom "A") (Atom "B")))
+    proveImpl (Conj (Atom "A") (Atom "B")) (Disj (Atom "A") (Atom "B"))
+    proveImpl (Conj (Impl (Atom "A") (Atom "B")) (Impl (Atom "B") (Atom "C")))
+              (Impl (Atom "A") (Atom "C"))
