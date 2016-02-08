@@ -10,6 +10,7 @@ data Proof =
     Var String |
     Appl Proof Proof |
     Lmbd String (Maybe Formula) Proof |
+    Pair Proof Proof |
     PrnP Proof
   deriving (Eq, Ord)
 
@@ -18,6 +19,7 @@ instance Show Proof where
     show (Appl a b) = show a ++ " " ++ show b
     show (Lmbd x (Just f) p) = "(\\" ++ x ++ " : " ++ show f ++ "). " ++ show p
     show (Lmbd x Nothing p) = "\\" ++ x ++ ". " ++ show p
+    show (Pair a b) = "(" ++ show a ++ ", " ++ show b ++ ")"
     show (PrnP p) = "(" ++ show p ++ ")"
 
 varsOf :: Proof -> [String]
