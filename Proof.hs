@@ -36,6 +36,7 @@ varsOf :: Proof -> [String]
 varsOf (Var a) = [a]
 varsOf (Appl a b) = varsOf a ++ varsOf b
 varsOf (Lmbd a _ b) = [a] ++ varsOf b
+varsOf (Pair a b) = varsOf a ++ varsOf b
 varsOf (PrnP a) = varsOf a
 
 -- Parenthesize the proof to make it unambiguous.
