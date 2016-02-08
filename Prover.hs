@@ -3,6 +3,9 @@
 --
 
 import qualified Data.Map as Map
+import qualified Data.Set as Set
+import qualified Data.List as List
+import qualified Data.Maybe as Maybe
 import Control.Monad
 import Data.Generics.Aliases
 
@@ -12,6 +15,21 @@ import Proof
 -- Knowledge base.
 type KB = Map.Map Formula Proof
 emptyKB = Map.empty
+
+-- All variable names in all proofs.
+varsInKB :: KB -> Set.Set String
+varsInKB kb = Set.fromList [v | p <- Map.elems kb, v <- varsOf p ]
+
+-- Variable name that's not present in kb.
+newVar :: KB -> String
+newVar kb = Maybe.fromMaybe "_" $ List.find notUsed varNames
+  where
+    notUsed n = Set.notMember n usedNames
+    usedNames = varsInKB kb
+    varNames = map mkName $ varPairs
+    mkName (letter, number) =
+        if number == 0 then [letter] else [letter] ++ show number
+    varPairs = [(l, n) | n <- [0..], l <- ['a'..'z']]
 
 prove :: KB -> Formula -> Maybe Proof
 prove kb f
@@ -23,7 +41,7 @@ prove' kb (Impl a b) = do
     pb <- prove kb' b
     return $ Lmbd var (Just a) pb
   where
-    var = "p"
+    var = newVar kb
     kb' = if Map.member a kb then kb else Map.insert a (Var var) kb
 
 prove' kb (Disj a b) =
