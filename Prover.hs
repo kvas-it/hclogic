@@ -2,7 +2,7 @@
 -- Generate constructive proofs for formulas.
 --
 
-module Prover where
+module Prover (emptyKB, prove) where
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -36,12 +36,30 @@ assume :: KnowledgeBase -> Formula -> Proof -> KnowledgeBase
 assume kb f p =
     if Map.member f kb then kb
     else
-        assumeDerived (Map.insert f p kb) f p
+        deriveAssumptions $ Map.insert f p kb
 
--- Add derived formulas to knowledge base.
-assumeDerived kb (Conj a b) p =
-    assume (assume kb a $ appl "fst" p) b $ appl "snd" p
-assumeDerived kb _ _ = kb
+deriveAssumptions kb =
+    if updatedKB == kb
+        then kb
+        else
+            deriveAssumptions $ updatedKB
+  where
+    derived1 = [fp | fp1 <- Map.toList kb,
+                     fp <- derive1 kb fp1]
+    derived2 = [fp | fp1 <- Map.toList kb,
+                     fp2 <- Map.toList kb,
+                     fp1 /= fp2,
+                     fp <- derive2 kb fp1 fp2 ]
+    derivedFPs = derived1 ++ derived2
+    updatedKB = Map.union kb $ Map.fromList derivedFPs
+
+derive1 kb ((Conj a b), p) = [(a, appl "fst" p), (b, appl "snd" p)]
+derive1 _ _ = []
+
+derive2 kb ((Impl a b), p) (c, r)
+    | a == c    = [(b, Appl p r)]
+    | otherwise = []
+derive2 _ _ _ = []
 
 prove :: KnowledgeBase -> Formula -> Maybe Proof
 prove kb f
